@@ -1,0 +1,7 @@
+flask==3.0.3
+gunicorn==21.2.0
+supabase>=2.0.0,<3.0.0
+httpx>=0.24.0
+# psycopg2-binary is no longer required by the app runtime, but is kept optional
+# for local tooling. You can remove it if you want a smaller deploy.
+psycopg2-binary==2.9.9
