@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login – Torgplan</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="loginPage">
+  <form class="loginBox" method="post">
+    <div class="loginTitle">Torgplan</div>
+    <div class="muted">Skriv inn passord for å åpne kartet.</div>
+    <input class="input" type="password" name="password" placeholder="Passord" autofocus />
+    <button class="btn" type="submit">Logg inn</button>
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+  </form>
+</body>
+</html>
