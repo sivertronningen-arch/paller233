@@ -30,11 +30,44 @@ def add_no_cache_headers(resp):
     return resp
 
 
+from urllib.parse import urlparse, unquote
+import socket
+import psycopg2
+
 def _get_conn():
     if not DATABASE_URL:
-        raise RuntimeError("DATABASE_URL mangler (sett i Render Environment)")
-    # Supabase krever SSL
-    return psycopg2.connect(DATABASE_URL, sslmode="require")
+        raise RuntimeError("DATABASE_URL mangler i environment")
+
+    u = urlparse(DATABASE_URL)
+
+    # støtter både postgres:// og postgresql://
+    host = u.hostname
+    port = u.port or 5432
+    user = unquote(u.username or "")
+    password = unquote(u.password or "")
+    dbname = (u.path or "/postgres").lstrip("/") or "postgres"
+
+    # Tving IPv4 hvis mulig (Render har ofte ikke IPv6 ut)
+    hostaddr = None
+    try:
+        infos = socket.getaddrinfo(host, port, family=socket.AF_INET, type=socket.SOCK_STREAM)
+        if infos:
+            hostaddr = infos[0][4][0]  # første IPv4-adresse
+    except Exception:
+        hostaddr = None
+
+    kwargs = dict(
+        dbname=dbname,
+        user=user,
+        password=password,
+        host=host,
+        port=port,
+        sslmode="require",
+    )
+    if hostaddr:
+        kwargs["hostaddr"] = hostaddr  # psycopg2 kobler da via IPv4
+
+    return psycopg2.connect(**kwargs)
 
 
 def _ensure_kv_table():
